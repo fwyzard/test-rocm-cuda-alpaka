@@ -4,5 +4,13 @@
 *.so
 
 # binaries
-test
-test.static
+/test
+/test.static
+/test-cuda
+/test-cuda.static
+/test-rocm
+/test-rocm.static
+
+# external libraries
+/alpaka
+/boost
