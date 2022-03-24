@@ -63,3 +63,24 @@ namespace alpaka_rocm {
 }  // namespace alpaka_rocm
 
 #endif  // ALPAKA_ACC_GPU_HIP_ENABLED
+
+#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
+
+#define ALPAKA_ACCELERATOR_NAMESPACE alpaka_serial
+
+namespace alpaka_serial {
+
+  // device types
+  using Platform = alpaka::PltfCpu;
+  using Device = alpaka::DevCpu;
+  using Queue = alpaka::QueueCpuBlocking;
+  using Event = alpaka::EventCpu;
+
+  // accelerator types
+  template <typename TDim>
+  using Acc = alpaka::AccCpuSerial<TDim, Idx>;
+  using Acc1D = Acc<Dim1D>;
+
+}  // namespace alpaka_serial
+
+#endif  // ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED

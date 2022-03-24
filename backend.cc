@@ -10,8 +10,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   const int* __restrict__ data,
                                   int* __restrict__ result,
                                   const int size) const {
-      int i = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
-      if (i < size)
+      const int first = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
+      const int elements = alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0];
+      const int last = std::min(first + elements, size);
+      for (int i = first; i < last; ++i)
         alpaka::atomicAdd(acc, result, data[i], alpaka::hierarchy::Blocks{});
     }
   };
@@ -45,11 +47,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::memset(queue, result, 0);
 
     const Vec1D blocks{1};
+#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
+    const Vec1D threads{1};
+    const Vec1D elements{32};
+#else
     const Vec1D threads{32};
     const Vec1D elements{1};
+#endif
     const WorkDiv1D workDiv{blocks, threads, elements};
 
-    std::cout << "accalerator: " << alpaka::getAccName<Acc1D>() << std::endl;
+    std::cout << "accelerator: " << alpaka::getAccName<Acc1D>() << std::endl;
     auto kernelTask = alpaka::createTaskKernel<Acc1D>(workDiv, Kernel{}, buffer.data(), result.data(), size);
     alpaka::enqueue(queue, kernelTask);
     alpaka::memcpy(queue, result_h, result);
